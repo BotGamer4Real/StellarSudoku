@@ -1,0 +1,29 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.key
+service-role*
+supabase/.temp/
+
+# Dependencies and build
+node_modules/
+dist/
+build/
+.output/
+.next/
+.cache/
+
+# Vercel
+.vercel/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*.log
