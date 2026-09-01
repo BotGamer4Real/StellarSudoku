@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Shell } from '../components/Shell';
 import { CAMPAIGN_LEVELS, PUZZLES_PER_LEVEL } from '../lib/constants';
+import { isDevTester } from '../lib/devTester';
 import { formatElapsed } from '../lib/format';
 import { requireSupabase } from '../lib/supabase';
 import { useAuth } from '../state/AuthProvider';
@@ -9,28 +10,52 @@ import { useAuth } from '../state/AuthProvider';
 type ProgressRow = { level: number; puzzle_index: number; best_ms: number | null };
 
 export function CampaignScreen() {
-  const { user } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const nav = useNavigate();
+  const tester = isDevTester(profile?.display_name, user?.email);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
   const [board, setBoard] = useState<{ level: number; display_name: string; elapsed_ms: number }[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [busyLevel, setBusyLevel] = useState<number | null>(null);
+
+  const reload = useCallback(async () => {
+    const sb = requireSupabase();
+    const { data, error: e } = await sb.from('campaign_progress').select('level,puzzle_index,best_ms');
+    if (e) setError(e.message);
+    else setProgress((data ?? []) as ProgressRow[]);
+    const { data: lb } = await sb
+      .from('campaign_leaderboard')
+      .select('level,display_name,elapsed_ms')
+      .order('elapsed_ms')
+      .limit(100);
+    setBoard((lb ?? []) as typeof board);
+  }, []);
 
   useEffect(() => {
     if (!user) {
       nav('/auth?next=/campaign');
       return;
     }
-    const sb = requireSupabase();
-    void sb.from('campaign_progress').select('level,puzzle_index,best_ms').then(({ data, error: e }) => {
-      if (e) setError(e.message);
-      else setProgress((data ?? []) as ProgressRow[]);
-    });
-    void sb.from('campaign_leaderboard').select('level,display_name,elapsed_ms').order('elapsed_ms').limit(100)
-      .then(({ data }) => setBoard((data ?? []) as typeof board));
-  }, [user, nav]);
+    void reload();
+  }, [user, nav, reload]);
 
   const completed = (level: number) => progress.filter((p) => p.level === level).length;
   const unlocked = (level: number) => level === 1 || completed(level - 1) >= PUZZLES_PER_LEVEL;
+
+  const autoCompleteLevel = async (level: number) => {
+    setError(null);
+    setBusyLevel(level);
+    try {
+      const { error: e } = await requireSupabase().rpc('dev_complete_campaign_level', { p_level: level });
+      if (e) throw e;
+      await reload();
+      await refreshProfile();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Auto-complete failed');
+    } finally {
+      setBusyLevel(null);
+    }
+  };
 
   return (
     <Shell>
@@ -39,30 +64,43 @@ export function CampaignScreen() {
         <h1 className="brand">Campaign</h1>
       </div>
       <p className="muted">120 fixed puzzles. Finish all 20 in a level to unlock the next. Replays stay open.</p>
+      {tester && <p className="muted">Tester AUTO is visible only on this account. Completing a level unlocks the next and writes progress.</p>}
       {error && <p className="error">{error}</p>}
       <div className="list">
         {CAMPAIGN_LEVELS.map((lvl) => {
           const open = unlocked(lvl.level);
           const done = completed(lvl.level);
+          const nextIdx =
+            Array.from({ length: 20 }, (_, i) => i + 1).find(
+              (n) => !progress.some((p) => p.level === lvl.level && p.puzzle_index === n),
+            ) ?? 1;
           return (
-            <button
-              key={lvl.level}
-              className={open ? undefined : 'locked'}
-              disabled={!open}
-              onClick={() => {
-                const next = progress
-                  .filter((p) => p.level === lvl.level)
-                  .map((p) => p.puzzle_index);
-                const idx = Array.from({ length: 20 }, (_, i) => i + 1).find((n) => !next.includes(n)) ?? 1;
-                nav(`/play/campaign/${lvl.level}/${idx}`);
-              }}
-            >
+            <div className="row-card" key={lvl.level}>
               <span>
                 <strong>{lvl.name}</strong>
                 <div className="muted">{done}/{PUZZLES_PER_LEVEL}{open ? '' : ' · locked'}</div>
               </span>
-              <span className="badge">{open ? 'Play' : 'Lock'}</span>
-            </button>
+              <span className="row">
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={!open}
+                  onClick={() => nav(`/play/campaign/${lvl.level}/${nextIdx}`)}
+                >
+                  {open ? 'Play' : 'Lock'}
+                </button>
+                {tester && open && done < PUZZLES_PER_LEVEL && (
+                  <button
+                    type="button"
+                    className="btn danger"
+                    disabled={busyLevel === lvl.level}
+                    onClick={() => void autoCompleteLevel(lvl.level)}
+                  >
+                    {busyLevel === lvl.level ? '…' : 'AUTO'}
+                  </button>
+                )}
+              </span>
+            </div>
           );
         })}
       </div>

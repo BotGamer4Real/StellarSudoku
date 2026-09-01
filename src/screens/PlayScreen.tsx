@@ -5,6 +5,7 @@ import { Modal } from '../components/Modal';
 import { NumberPad } from '../components/NumberPad';
 import { Shell } from '../components/Shell';
 import { difficultyById, UNDO_PENALTY_MS } from '../lib/constants';
+import { isDevTester } from '../lib/devTester';
 import { formatElapsed } from '../lib/format';
 import { loadGuest, saveGuest } from '../lib/guest';
 import { requireSupabase } from '../lib/supabase';
@@ -84,6 +85,7 @@ export function PlayScreen() {
 
   const powerAllowed = mode !== 'daily' && diff.powerUps;
   const undoPenalty = mode !== 'single';
+  const tester = isDevTester(profile?.display_name, user?.email);
 
   useEffect(() => {
     runningRef.current = running;
@@ -439,6 +441,53 @@ export function PlayScreen() {
     setUndos((n) => n + 1);
   };
 
+  const autoComplete = async () => {
+    if (!tester || result) return;
+    setRunning(false);
+    setLaunchOpen(false);
+    setContinueOpen(false);
+    setError(null);
+    try {
+      if (mode === 'campaign') {
+        const sb = requireSupabase();
+        const { data, error: e } = await sb.rpc('dev_complete_campaign_puzzle', {
+          p_level: campaignLevel,
+          p_index: campaignIndex,
+        });
+        if (e) throw e;
+        setResult({
+          acceptedMs: data.accepted_ms,
+          coins: data.coins,
+          already: data.already,
+          perfect: data.perfect,
+        });
+        await refreshProfile();
+        return;
+      }
+      if (mode === 'daily') {
+        const sb = requireSupabase();
+        const { data, error: e } = await sb.rpc('dev_complete_daily');
+        if (e) throw e;
+        setResult({
+          acceptedMs: data.accepted_ms,
+          coins: data.coins,
+          already: data.already,
+          perfect: data.perfect ?? false,
+        });
+        await refreshProfile();
+        return;
+      }
+      if (!solution) {
+        setError('No solution on this board to auto-complete.');
+        return;
+      }
+      setGrid(cloneGrid(solution));
+      await finish(solution);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Auto-complete failed');
+    }
+  };
+
   const applyHint = async () => {
     if (!powerAllowed || powerUpsUsed >= powerReady) return;
     let index = -1;
@@ -539,6 +588,11 @@ export function PlayScreen() {
         {powerAllowed && (
           <button className="btn" type="button" onClick={() => void applyHint()} disabled={powerUpsUsed >= powerReady}>
             Boost {powerReady - powerUpsUsed}
+          </button>
+        )}
+        {tester && !result && (
+          <button className="btn danger" type="button" onClick={() => void autoComplete()}>
+            AUTO
           </button>
         )}
       </div>
