@@ -6,7 +6,8 @@ Classic Sudoku with a space theme — six difficulties, a 120-puzzle campaign, a
 
 ## Stack
 
-- Vite + React + TypeScript (mobile-first web client; Capacitor wrap for Play later)
+- Vite + React + TypeScript (mobile-first web client)
+- Capacitor Android wrap for Google Play internal testing
 - Supabase (auth, Postgres, RLS, RPCs)
 - Vercel preview of the web client
 
@@ -38,3 +39,17 @@ npx supabase functions deploy delete-account
 ```
 
 Add the same `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project settings (Production + Preview). Never add the service role key there.
+
+## Android (Play internal test)
+
+Package id: `com.stellarsudoku.app`. Portrait is the primary layout.
+
+```bash
+npm install
+# .env.local must contain the public Supabase URL + anon key (baked into the web build)
+npm run android:build
+```
+
+That writes a debug APK to `android/app/build/outputs/apk/debug/`. Open the project in Android Studio with `npm run android:open`.
+
+`android/local.properties` is machine-local (gitignored). Point `sdk.dir` at your Android SDK if Gradle cannot find it.

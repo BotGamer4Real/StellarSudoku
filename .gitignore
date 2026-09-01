@@ -16,8 +16,16 @@ build/
 .next/
 .cache/
 
-# Native shells
-android/
+# Native build outputs (the android/ project itself is committed)
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/local.properties
+android/captures/
+*.apk
+*.aab
+*.ap_
 ios/
 
 # Vercel
