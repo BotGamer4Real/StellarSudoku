@@ -49,6 +49,8 @@ export type Profile = {
     theme: 'dark' | 'light';
     notesDefault: boolean;
     leftHanded: boolean;
+    colourBlind?: boolean;
+    largeCells?: boolean;
   };
   needs_display_name: boolean;
 };

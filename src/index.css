@@ -33,6 +33,31 @@ html[data-theme='light'] {
   --pad: #ffffff;
 }
 
+html[data-cb='on'] {
+  --accent: #56b4e9;
+  --accent-2: #0072b2;
+  --good: #e69f00;
+  --bad: #d55e00;
+  --given: #0072b2;
+  --warn: #f0e442;
+}
+html[data-cb='on'] .cell.same { background: #16324a; }
+html[data-cb='on'] .cell.unit { background: #1a2a38; }
+html[data-cb='on'] .cell.good { background: rgba(230, 159, 0, 0.28); }
+html[data-cb='on'] .cell.bad { background: rgba(213, 94, 0, 0.32); }
+html[data-theme='light'][data-cb='on'] .cell.same { background: #d6ecf8; }
+html[data-theme='light'][data-cb='on'] .cell.unit { background: #eaf4fb; }
+
+html[data-large='on'] .app-shell {
+  max-width: 560px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+html[data-large='on'] .board { width: min(100%, 520px); }
+html[data-large='on'] .cell { font-size: clamp(20px, 5.4vw, 28px); }
+html[data-large='on'] .pad button { min-height: 56px; }
+html[data-large='on'] .notes { font-size: 11px; }
+
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
 button, input { font: inherit; }

@@ -4,6 +4,7 @@ import { Board } from '../components/Board';
 import { Modal } from '../components/Modal';
 import { NumberPad } from '../components/NumberPad';
 import { Shell } from '../components/Shell';
+import { loadLocalSettings, mergeSettings } from '../lib/applySettings';
 import { difficultyById, UNDO_PENALTY_MS } from '../lib/constants';
 import { isDevTester } from '../lib/devTester';
 import { formatElapsed } from '../lib/format';
@@ -56,7 +57,9 @@ export function PlayScreen() {
   const [selected, setSelected] = useState<number | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [running, setRunning] = useState(false);
-  const [notesOn, setNotesOn] = useState(Boolean(profile?.settings?.notesDefault));
+  const playSettings = mergeSettings(profile?.settings ?? loadLocalSettings());
+  const [notesOn, setNotesOn] = useState(playSettings.notesDefault);
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
   const [invalidAttempts, setInvalidAttempts] = useState(0);
   const [undos, setUndos] = useState(0);
   const [powerUpsUsed, setPowerUpsUsed] = useState(0);
@@ -609,7 +612,7 @@ export function PlayScreen() {
           </button>
         )}
       </div>
-      <NumberPad gone={gone} leftHanded={Boolean(profile?.settings?.leftHanded)} onDragStart={onDragStart} />
+      <NumberPad gone={gone} leftHanded={playSettings.leftHanded} onDragStart={onDragStart} />
 
       {ghost && (
         <div className="ghost" style={{ left: ghost.x - 22, top: ghost.y - 22 }}>{ghost.d}</div>
@@ -687,6 +690,28 @@ export function PlayScreen() {
             <button className="btn primary" onClick={() => nav('/campaign')}>Back to Campaign</button>
           )}
           {mode === 'daily' && <button className="btn" onClick={() => { setResult(null); setGrid(cloneGrid(givens)); setNotes({}); setUndo([]); }}>Replay (practice)</button>}
+          <button
+            className="btn"
+            type="button"
+            onClick={async () => {
+              const text = `StellarSudoku — ${title} in ${formatElapsed(result.acceptedMs)}. ${
+                result.already ? 'Already earned coins for this board.' : `Coins ${result.coins}.`
+              }`;
+              try {
+                if (navigator.share) {
+                  await navigator.share({ title: 'StellarSudoku', text });
+                } else {
+                  await navigator.clipboard.writeText(text);
+                  setShareMsg('Copied summary');
+                }
+              } catch {
+                /* cancelled */
+              }
+            }}
+          >
+            Share
+          </button>
+          {shareMsg && <p className="ok">{shareMsg}</p>}
           <Link className="btn" to="/">Back to menu</Link>
         </Modal>
       )}

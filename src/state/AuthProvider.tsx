@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
+import { applyClientSettings, loadLocalSettings } from '../lib/applySettings';
 import { authRedirectTo } from '../lib/authRedirect';
 import { supabase, supabaseConfigured } from '../lib/supabase';
 import type { Profile } from '../lib/types';
@@ -58,18 +59,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     setProfile(p);
-    const theme = p.settings?.theme === 'light' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = theme;
+    applyClientSettings(p.settings);
     return p;
   }, [session?.user]);
 
   useEffect(() => {
+    applyClientSettings(loadLocalSettings());
     if (!supabase) {
       setReady(true);
       return;
     }
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
+      if (!data.session) applyClientSettings(loadLocalSettings());
       setReady(true);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, next) => setSession(next));
@@ -99,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase?.auth.signOut();
     setProfile(null);
+    applyClientSettings(loadLocalSettings());
   };
 
   const resetPassword = async (email: string) => {
