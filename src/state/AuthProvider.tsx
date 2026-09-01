@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
+import { authRedirectTo } from '../lib/authRedirect';
 import { supabase, supabaseConfigured } from '../lib/supabase';
 import type { Profile } from '../lib/types';
 
@@ -22,6 +23,7 @@ type AuthCtx = {
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<string | null>;
+  resendConfirmation: (email: string) => Promise<string | null>;
   setDisplayName: (name: string) => Promise<string | null>;
   deleteAccount: () => Promise<string | null>;
 };
@@ -80,7 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     if (!supabase) return { error: 'Supabase is not configured', needsConfirm: false };
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: authRedirectTo() },
+    });
     return { error: error?.message ?? null, needsConfirm: !data.session };
   };
 
@@ -98,7 +104,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (email: string) => {
     if (!supabase) return 'Supabase is not configured';
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin,
+      redirectTo: authRedirectTo(),
+    });
+    return error?.message ?? null;
+  };
+
+  const resendConfirmation = async (email: string) => {
+    if (!supabase) return 'Supabase is not configured';
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: authRedirectTo() },
     });
     return error?.message ?? null;
   };
@@ -132,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
       resetPassword,
+      resendConfirmation,
       setDisplayName,
       deleteAccount,
     }),

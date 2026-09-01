@@ -1,13 +1,14 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Shell } from '../components/Shell';
+import { authCallbackError, clearAuthCallbackFromUrl } from '../lib/authRedirect';
 import { DISPLAY_NAME_RE } from '../lib/constants';
 import { useAuth } from '../state/AuthProvider';
 
 const PENDING_NAME_KEY = 'stellarsudoku.pendingDisplayName';
 
 export function AuthScreen() {
-  const { signIn, signUp, resetPassword, setDisplayName, configured } = useAuth();
+  const { signIn, signUp, resetPassword, resendConfirmation, setDisplayName, configured } = useAuth();
   const nav = useNavigate();
   const [params] = useSearchParams();
   const next = params.get('next') || '/';
@@ -19,6 +20,18 @@ export function AuthScreen() {
   const [err, setErr] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const callbackErr = authCallbackError();
+    if (!callbackErr) return;
+    const expired = /invalid or has expired|otp_expired|access_denied/i.test(callbackErr);
+    setErr(
+      expired
+        ? 'That confirmation link is invalid or has expired. Enter your email and resend a new one.'
+        : callbackErr,
+    );
+    clearAuthCallbackFromUrl();
+  }, []);
 
   const title = useMemo(
     () => (mode === 'in' ? 'Sign in' : mode === 'up' ? 'Create account' : 'Reset password'),
@@ -177,9 +190,27 @@ export function AuthScreen() {
       </form>
 
       {mode === 'in' && (
-        <button className="btn" type="button" onClick={() => { setMode('reset'); setErr(null); setInfo(null); }}>
-          Forgot password
-        </button>
+        <>
+          <button
+            className="btn"
+            type="button"
+            disabled={busy || !email.trim()}
+            onClick={async () => {
+              setErr(null);
+              setInfo(null);
+              setBusy(true);
+              const resendErr = await resendConfirmation(email.trim());
+              setBusy(false);
+              if (resendErr) setErr(resendErr);
+              else setInfo('New confirmation email sent. Use the latest email only.');
+            }}
+          >
+            Resend confirmation email
+          </button>
+          <button className="btn" type="button" onClick={() => { setMode('reset'); setErr(null); setInfo(null); }}>
+            Forgot password
+          </button>
+        </>
       )}
       {mode === 'reset' && (
         <button className="btn" type="button" onClick={() => switchMode('in')}>
