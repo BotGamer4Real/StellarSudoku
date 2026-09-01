@@ -161,6 +161,19 @@ export function PlayScreen() {
     (async () => {
       setBusy(true);
       setError(null);
+      setResult(null);
+      setSettingsOpen(false);
+      setContinueOpen(false);
+      setLaunchOpen(mode === 'daily');
+      setRunning(false);
+      setNotes({});
+      setUndo([]);
+      setElapsedMs(0);
+      setInvalidAttempts(0);
+      setUndos(0);
+      setPowerUpsUsed(0);
+      setPowerReady(0);
+      setSelected(null);
       const guest = loadGuest();
       if (!guest.tutorialDone && !profile?.tutorial_completed) setTutorial(true);
 
@@ -660,7 +673,15 @@ export function PlayScreen() {
             </>
           )}
           {mode === 'campaign' && campaignIndex < 20 && (
-            <button className="btn primary" onClick={() => nav(`/play/campaign/${campaignLevel}/${campaignIndex + 1}`)}>Next Campaign puzzle</button>
+            <button
+              className="btn primary"
+              onClick={() => {
+                setResult(null);
+                nav(`/play/campaign/${campaignLevel}/${campaignIndex + 1}`);
+              }}
+            >
+              Next Campaign puzzle
+            </button>
           )}
           {mode === 'campaign' && campaignIndex >= 20 && (
             <button className="btn primary" onClick={() => nav('/campaign')}>Back to Campaign</button>
