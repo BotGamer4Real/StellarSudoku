@@ -18,7 +18,7 @@ type AuthCtx = {
   user: User | null;
   profile: Profile | null;
   refreshProfile: () => Promise<Profile | null>;
-  signUp: (email: string, password: string) => Promise<string | null>;
+  signUp: (email: string, password: string) => Promise<{ error: string | null; needsConfirm: boolean }>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<string | null>;
@@ -43,7 +43,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       return null;
     }
-    const p = data as Profile;
+    let p = data as Profile;
+    if (p.needs_display_name) {
+      const pending = localStorage.getItem('stellarsudoku.pendingDisplayName');
+      if (pending) {
+        const { error: nameErr } = await supabase.rpc('set_display_name', { p_name: pending });
+        if (!nameErr) {
+          localStorage.removeItem('stellarsudoku.pendingDisplayName');
+          const again = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+          if (again.data) p = again.data as Profile;
+        }
+      }
+    }
     setProfile(p);
     const theme = p.settings?.theme === 'light' ? 'light' : 'dark';
     document.documentElement.dataset.theme = theme;
@@ -68,9 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refreshProfile]);
 
   const signUp = async (email: string, password: string) => {
-    if (!supabase) return 'Supabase is not configured';
-    const { error } = await supabase.auth.signUp({ email, password });
-    return error?.message ?? null;
+    if (!supabase) return { error: 'Supabase is not configured', needsConfirm: false };
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    return { error: error?.message ?? null, needsConfirm: !data.session };
   };
 
   const signIn = async (email: string, password: string) => {

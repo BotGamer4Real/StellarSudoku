@@ -73,6 +73,32 @@ button { cursor: pointer; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn.ghost { background: transparent; box-shadow: none; }
 
+.auth-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg-2);
+}
+.auth-switch button {
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+}
+.auth-switch button.active {
+  background: var(--panel);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field span { font-size: 0.85rem; color: var(--muted); }
+
 .topbar { display: flex; align-items: center; gap: 8px; min-height: 44px; }
 .icon-btn {
   width: 44px; height: 44px; border-radius: 12px;

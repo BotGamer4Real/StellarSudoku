@@ -67,7 +67,12 @@ export function HomeScreen() {
           Classic Sudoku with a space theme — six difficulties, a 120-puzzle campaign, and one shared daily board.
         </p>
         {profile && <p className="muted">✦ {profile.coins} Cosmic Coins</p>}
-        {!user && <p className="muted">Guest: Single Player only. Sign in for Campaign, Daily, and cloud save.</p>}
+        {!user && (
+          <>
+            <p className="muted">Guest: Single Player only. Sign in or sign up for Campaign, Daily, and cloud save.</p>
+            <button className="btn" type="button" onClick={() => nav('/auth')}>Sign in / Sign up</button>
+          </>
+        )}
       </header>
 
       <nav className="menu">
