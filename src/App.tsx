@@ -7,6 +7,7 @@ import { DifficultyScreen } from './screens/DifficultyScreen';
 import { HelpScreen } from './screens/HelpScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { PlayScreen } from './screens/PlayScreen';
+import { PrivacyScreen } from './screens/PrivacyScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { ShopScreen } from './screens/ShopScreen';
@@ -24,6 +25,7 @@ export function App() {
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
           <Route path="/help" element={<HelpScreen />} />
+          <Route path="/privacy" element={<PrivacyScreen />} />
           <Route path="/shop" element={<ShopScreen />} />
           <Route path="/play/single/:difficulty" element={<PlayScreen />} />
           <Route path="/play/campaign/:level/:index" element={<PlayScreen />} />

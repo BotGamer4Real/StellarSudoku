@@ -83,6 +83,7 @@ export function SettingsScreen() {
         {user && <button className="btn" onClick={() => void signOut()}>Sign out</button>}
         {user && <button className="btn danger" onClick={() => setConfirmDelete(true)}>Delete account</button>}
         {!user && <Link className="btn" to="/auth">Sign in</Link>}
+        <Link className="btn" to="/privacy">Privacy policy</Link>
         <p className="error">{err}</p>
       </div>
 

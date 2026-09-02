@@ -231,5 +231,6 @@ input[type='email'], input[type='password'], input[type='text'] {
 
 .range { width: 100%; }
 
-.help p { color: var(--muted); line-height: 1.45; }
+.help p, .help li { color: var(--muted); line-height: 1.45; }
+.help a { color: var(--accent); }
 .locked { opacity: 0.45; }
