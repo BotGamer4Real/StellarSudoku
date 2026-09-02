@@ -53,3 +53,24 @@ npm run android:build
 That writes a debug APK to `android/app/build/outputs/apk/debug/`. Open the project in Android Studio with `npm run android:open`.
 
 `android/local.properties` is machine-local (gitignored). Point `sdk.dir` at your Android SDK if Gradle cannot find it.
+
+## Play Console (you do this in the browser)
+
+I cannot access Google Play Console. Create the app yourself, then upload the signed bundle.
+
+1. [play.google.com/console](https://play.google.com/console) → **Create app**
+2. Name: **StellarSudoku** · language English · app (not game-with-ads) · free
+3. Package / application id: `com.stellarsudoku.app` (must match this project; you cannot change it later)
+4. Accept Play App Signing (default). This project's `.jks` is the **upload key**; Google holds the app-signing key.
+5. Testing → **Internal testing** → Create release → upload `play-release/StellarSudoku-1.0.0.aab`
+6. Complete Data safety: collects email + gameplay progress for app functionality; not sold; no ads; no IAP
+7. Content rating: Everyone / PEGI 3 equivalent. Accounts are 13+.
+8. In-app account deletion: Settings → Delete account (already in the binary)
+
+The upload keystore is **not** in Git. Keep `android/keystore/KEEP-THIS-SECRET.txt` and `stellarsudoku-upload.jks` in a password manager / offline backup. Losing them means a Play upload-key reset.
+
+Rebuild a signed bundle:
+
+```bash
+npm run android:bundle
+```
