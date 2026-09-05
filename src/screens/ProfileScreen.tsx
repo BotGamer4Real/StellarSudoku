@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Coins } from '../components/Coins';
 import { Shell } from '../components/Shell';
+import { ART, avatarSrc, bannerSrc, DIFFICULTY_ART } from '../lib/art';
 import { ACHIEVEMENTS, DIFFICULTIES } from '../lib/constants';
 import { formatElapsed } from '../lib/format';
 import { requireSupabase } from '../lib/supabase';
@@ -29,24 +31,25 @@ export function ProfileScreen() {
     );
   }
 
+  const banner = bannerSrc(profile.equipped_banner) ?? ART.starfield;
+
   return (
     <Shell>
       <div className="topbar">
-        <Link className="icon-btn" to="/">←</Link>
+        <Link className="icon-btn" to="/" aria-label="Back">←</Link>
         <h1 className="brand">Profile</h1>
       </div>
-      <div className="panel stack">
+      <div className="profile-hero" style={{ backgroundImage: `linear-gradient(180deg, rgba(8,12,28,0.15), rgba(8,12,28,0.82)), url("${banner}")` }}>
+        <img className="avatar-lg" src={avatarSrc(profile.equipped_avatar)} alt="" />
         <strong>{profile.display_name}</strong>
-        <span>✦ {profile.coins} Cosmic Coins</span>
-        <span>Solves {profile.total_solves}</span>
-        <span>Daily streak {profile.daily_streak}</span>
-        {profile.equipped_avatar && <span className="muted">Avatar: {profile.equipped_avatar}</span>}
-        {profile.equipped_banner && <span className="muted">Banner: {profile.equipped_banner}</span>}
+        <Coins amount={profile.coins} />
+        <span className="muted">Solves {profile.total_solves} · Daily streak {profile.daily_streak}</span>
       </div>
       <h2>Best times</h2>
       <div className="list">
         {DIFFICULTIES.map((d) => (
-          <div className="row-card" key={d.id}>
+          <div className="row-card art-card" key={d.id}>
+            <img className="thumb" src={DIFFICULTY_ART[d.id]} alt="" />
             <span>{d.name}</span>
             <span>{profile.best_times?.[d.id] != null ? formatElapsed(profile.best_times[d.id]) : '—'}</span>
           </div>

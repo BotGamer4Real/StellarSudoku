@@ -58,6 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     }
+    if ((p.settings?.music ?? 0) === 0 && (p.settings?.sfx ?? 0) === 0 && supabase) {
+      p = { ...p, settings: { ...p.settings, music: 28, sfx: 70 } };
+      void supabase.rpc('patch_settings', { p_settings: { music: 28, sfx: 70 } });
+    }
     setProfile(p);
     applyClientSettings(p.settings);
     return p;

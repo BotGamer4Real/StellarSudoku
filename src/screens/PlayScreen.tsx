@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Board } from '../components/Board';
+import { Flourish } from '../components/Flourish';
 import { Modal } from '../components/Modal';
 import { NumberPad } from '../components/NumberPad';
 import { Shell } from '../components/Shell';
+import { playSfx } from '../lib/audio';
 import { loadLocalSettings, mergeSettings } from '../lib/applySettings';
 import { difficultyById, UNDO_PENALTY_MS } from '../lib/constants';
 import { isDevTester } from '../lib/devTester';
@@ -329,10 +331,12 @@ export function PlayScreen() {
   const place = (index: number, digit: Digit) => {
     if (givens[index]) return;
     if (notesOn) {
+      playSfx('tap');
       setNotes((n) => ({ ...n, [index]: (n[index] ?? 0) ^ (1 << (digit - 1)) }));
       return;
     }
     if (!isValidPlacement(grid, index, digit) && grid[index] !== digit) {
+      playSfx('invalid');
       const conf = conflictsFor(grid, index, digit);
       setConflicts(conf);
       setFlashBad([index, ...conf]);
@@ -354,6 +358,7 @@ export function PlayScreen() {
       return copy;
     });
     setUndo((u) => [...u, { cell: index, prev, prevNotes }]);
+    playSfx('place');
     setFlashGood([index]);
     window.setTimeout(() => setFlashGood([]), 280);
     void persist({
@@ -367,6 +372,7 @@ export function PlayScreen() {
   };
 
   const finish = async (finalGrid: Grid) => {
+    playSfx('complete');
     const raw = elapsedRef.current;
     const accepted = undoPenalty ? raw + undos * UNDO_PENALTY_MS : raw;
     const perfect = invalidAttempts === 0 && undos === 0 && powerUpsUsed === 0;
@@ -449,6 +455,7 @@ export function PlayScreen() {
   const undoMove = () => {
     const last = undo[undo.length - 1];
     if (!last) return;
+    playSfx('undo');
     const next = cloneGrid(grid);
     next[last.cell] = last.prev as Grid[number];
     setGrid(next);
@@ -471,6 +478,7 @@ export function PlayScreen() {
           p_index: campaignIndex,
         });
         if (e) throw e;
+        playSfx('complete');
         setResult({
           acceptedMs: data.accepted_ms,
           coins: data.coins,
@@ -484,6 +492,7 @@ export function PlayScreen() {
         const sb = requireSupabase();
         const { data, error: e } = await sb.rpc('dev_complete_daily');
         if (e) throw e;
+        playSfx('complete');
         setResult({
           acceptedMs: data.accepted_ms,
           coins: data.coins,
@@ -575,6 +584,7 @@ export function PlayScreen() {
 
   return (
     <Shell>
+      <Flourish equipped={profile?.equipped_flourish} show={Boolean(result)} />
       <div className="topbar">
         <Link className="icon-btn" to="/" onClick={() => setRunning(false)}>←</Link>
         <div className="grow">
@@ -594,7 +604,10 @@ export function PlayScreen() {
         flashBad={flashBad}
         conflicts={conflicts}
         completeUnits={completeUnits}
-        onSelect={setSelected}
+        onSelect={(i) => {
+          playSfx('tap');
+          setSelected(i);
+        }}
       />
       <div className="row space">
         <button className="btn" type="button" onClick={undoMove} disabled={!undo.length}>Undo</button>

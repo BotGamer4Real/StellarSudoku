@@ -1,3 +1,5 @@
+import { setAudioLevels } from './audio';
+
 export type ClientSettings = {
   music: number;
   sfx: number;
@@ -10,9 +12,11 @@ export type ClientSettings = {
 
 const KEY = 'stellarsudoku.settings.v1';
 
+const AUDIO_BUMP = 'stellarsudoku.audioBump.v2';
+
 export const defaultSettings = (): ClientSettings => ({
-  music: 0,
-  sfx: 0,
+  music: 28,
+  sfx: 70,
   theme: 'dark',
   notesDefault: false,
   leftHanded: false,
@@ -29,6 +33,7 @@ export function applyClientSettings(partial?: Partial<ClientSettings> | null): C
   document.documentElement.dataset.theme = s.theme;
   document.documentElement.dataset.cb = s.colourBlind ? 'on' : 'off';
   document.documentElement.dataset.large = s.largeCells ? 'on' : 'off';
+  setAudioLevels(s.sfx, s.music);
   return s;
 }
 
@@ -36,7 +41,12 @@ export function loadLocalSettings(): ClientSettings {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return defaultSettings();
-    return mergeSettings(JSON.parse(raw) as Partial<ClientSettings>);
+    const s = mergeSettings(JSON.parse(raw) as Partial<ClientSettings>);
+    if (s.music === 0 && s.sfx === 0 && !localStorage.getItem(AUDIO_BUMP)) {
+      localStorage.setItem(AUDIO_BUMP, '1');
+      return saveLocalSettings({ music: 28, sfx: 70 });
+    }
+    return s;
   } catch {
     return defaultSettings();
   }

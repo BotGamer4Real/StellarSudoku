@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Shell } from '../components/Shell';
+import { playSfx } from '../lib/audio';
 import { formatElapsed } from '../lib/format';
 import { formatResetLabel } from '../lib/dailyWindow';
 import { requireSupabase } from '../lib/supabase';
@@ -49,7 +50,7 @@ export function DailyScreen() {
       <p className="muted">One shared board for everyone. Resets {formatResetLabel()}. First accepted time of the day stands. Power-ups off.</p>
       {profile && <p>Streak {profile.daily_streak} day{profile.daily_streak === 1 ? '' : 's'}</p>}
       {error && <p className="error">{error}</p>}
-      <button className="btn primary" onClick={() => nav('/play/daily')}>Open today{dayId ? ` (${dayId})` : ''}</button>
+      <button className="btn primary" onClick={() => { playSfx('ui'); nav('/play/daily'); }}>Open today{dayId ? ` (${dayId})` : ''}</button>
       <h2>Today</h2>
       <div className="list">
         {today.length === 0 && <p className="muted">No times yet.</p>}

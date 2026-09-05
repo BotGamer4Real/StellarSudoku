@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { LookApplier } from './components/LookApplier';
 import { AuthProvider } from './state/AuthProvider';
 import { AuthScreen } from './screens/AuthScreen';
 import { CampaignScreen } from './screens/CampaignScreen';
@@ -16,6 +17,7 @@ import { ShopScreen } from './screens/ShopScreen';
 export function App() {
   return (
     <AuthProvider>
+      <LookApplier />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomeScreen />} />

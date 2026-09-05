@@ -9,6 +9,7 @@ import {
   saveLocalSettings,
   type ClientSettings,
 } from '../lib/applySettings';
+import { playSfx, setAudioLevels, unlockAudio } from '../lib/audio';
 import { loadGuest, saveGuest } from '../lib/guest';
 import { requireSupabase } from '../lib/supabase';
 import { useAuth } from '../state/AuthProvider';
@@ -44,9 +45,9 @@ export function SettingsScreen() {
         <h1 className="brand">Settings</h1>
       </div>
       <div className="stack">
-        <label>Music <input className="range" type="range" min={0} max={100} value={music} onChange={(e) => setMusic(Number(e.target.value))} onPointerUp={() => void patch({ music })} /></label>
-        <label>SFX <input className="range" type="range" min={0} max={100} value={sfx} onChange={(e) => setSfx(Number(e.target.value))} onPointerUp={() => void patch({ sfx })} /></label>
-        <p className="muted">Audio is silent until GraphicsGROK delivers sound. Sliders still save.</p>
+        <label>Music <input className="range" type="range" min={0} max={100} value={music} onChange={(e) => { const v = Number(e.target.value); setMusic(v); setAudioLevels(sfx, v); }} onPointerDown={() => unlockAudio()} onPointerUp={() => void patch({ music })} /></label>
+        <label>SFX <input className="range" type="range" min={0} max={100} value={sfx} onChange={(e) => { const v = Number(e.target.value); setSfx(v); setAudioLevels(v, music); }} onPointerDown={() => unlockAudio()} onPointerUp={() => { playSfx('place'); void patch({ sfx }); }} /></label>
+        <p className="muted">First tap unlocks audio. Music is a quiet space pad. Zero on a slider mutes that channel.</p>
         <div className="row">
           <button className={`btn grow${theme === 'dark' ? ' primary' : ''}`} onClick={() => { setTheme('dark'); void patch({ theme: 'dark' }); }}>Dark</button>
           <button className={`btn grow${theme === 'light' ? ' primary' : ''}`} onClick={() => { setTheme('light'); void patch({ theme: 'light' }); }}>Light</button>

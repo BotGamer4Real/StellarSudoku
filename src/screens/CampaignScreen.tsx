@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Shell } from '../components/Shell';
+import { DIFFICULTY_ART } from '../lib/art';
+import { playSfx } from '../lib/audio';
 import { CAMPAIGN_LEVELS, PUZZLES_PER_LEVEL } from '../lib/constants';
 import { isDevTester } from '../lib/devTester';
 import { formatElapsed } from '../lib/format';
@@ -75,7 +77,8 @@ export function CampaignScreen() {
               (n) => !progress.some((p) => p.level === lvl.level && p.puzzle_index === n),
             ) ?? 1;
           return (
-            <div className="row-card" key={lvl.level}>
+            <div className={`row-card art-card${open ? '' : ' locked'}`} key={lvl.level}>
+              <img className="thumb" src={DIFFICULTY_ART[lvl.difficulty]} alt="" />
               <span>
                 <strong>{lvl.name}</strong>
                 <div className="muted">{done}/{PUZZLES_PER_LEVEL}{open ? '' : ' · locked'}</div>
@@ -85,7 +88,10 @@ export function CampaignScreen() {
                   type="button"
                   className="btn"
                   disabled={!open}
-                  onClick={() => nav(`/play/campaign/${lvl.level}/${nextIdx}`)}
+                  onClick={() => {
+                    playSfx('ui');
+                    nav(`/play/campaign/${lvl.level}/${nextIdx}`);
+                  }}
                 >
                   {open ? 'Play' : 'Lock'}
                 </button>

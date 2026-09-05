@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shell } from '../components/Shell';
+import { Coins } from '../components/Coins';
 import { Modal } from '../components/Modal';
+import { Shell } from '../components/Shell';
+import { ART, avatarSrc } from '../lib/art';
+import { playSfx } from '../lib/audio';
 import { DISPLAY_NAME_RE } from '../lib/constants';
 import { loadGuest, saveGuest } from '../lib/guest';
 import { useAuth } from '../state/AuthProvider';
@@ -54,35 +57,43 @@ export function HomeScreen() {
     }
   };
 
+  const go = (path: string) => {
+    playSfx('ui');
+    nav(path);
+  };
+
   return (
     <Shell>
       <header className="stack">
         <div className="row space">
-          <h1 className="brand">StellarSudoku</h1>
+          <div className="row">
+            <img className="brand-mark" src={ART.icon} alt="" width={40} height={40} />
+            <h1 className="brand">StellarSudoku</h1>
+          </div>
           <Link className="icon-btn" to={user ? '/profile' : '/auth'} aria-label="Profile">
-            {user ? (profile?.display_name?.[0] ?? 'P') : '?'}
+            <img src={avatarSrc(profile?.equipped_avatar)} alt="" />
           </Link>
         </div>
         <p className="tagline">
           Classic Sudoku with a space theme — six difficulties, a 120-puzzle campaign, and one shared daily board.
         </p>
-        {profile && <p className="muted">✦ {profile.coins} Cosmic Coins</p>}
+        {profile ? <Coins amount={profile.coins} /> : guest.coins > 0 ? <Coins amount={guest.coins} /> : null}
         {!user && (
           <>
             <p className="muted">Guest: Single Player only. Sign in or sign up for Campaign, Daily, and cloud save.</p>
-            <button className="btn" type="button" onClick={() => nav('/auth')}>Sign in / Sign up</button>
+            <button className="btn" type="button" onClick={() => go('/auth')}>Sign in / Sign up</button>
           </>
         )}
       </header>
 
       <nav className="menu">
-        <button className="btn primary" onClick={() => nav('/single')}>Single Player</button>
-        <button className="btn" onClick={() => (user ? nav('/campaign') : nav('/auth?next=/campaign'))}>Campaign</button>
-        <button className="btn" onClick={() => (user ? nav('/daily') : nav('/auth?next=/daily'))}>Daily Challenge</button>
-        <button className="btn" onClick={() => (user ? nav('/shop') : nav('/auth?next=/shop'))}>Cosmetics shop</button>
+        <button className="btn primary" onClick={() => go('/single')}>Single Player</button>
+        <button className="btn" onClick={() => go(user ? '/campaign' : '/auth?next=/campaign')}>Campaign</button>
+        <button className="btn" onClick={() => go(user ? '/daily' : '/auth?next=/daily')}>Daily Challenge</button>
+        <button className="btn" onClick={() => go(user ? '/shop' : '/auth?next=/shop')}>Cosmetics shop</button>
         <div className="row">
-          <Link className="btn grow" to="/help">Help</Link>
-          <Link className="btn grow" to="/settings">Settings</Link>
+          <Link className="btn grow" to="/help" onClick={() => playSfx('ui')}>Help</Link>
+          <Link className="btn grow" to="/settings" onClick={() => playSfx('ui')}>Settings</Link>
         </div>
       </nav>
 
