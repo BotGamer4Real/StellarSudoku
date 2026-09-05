@@ -3,6 +3,7 @@ import { AuthProvider } from './state/AuthProvider';
 import { AuthScreen } from './screens/AuthScreen';
 import { CampaignScreen } from './screens/CampaignScreen';
 import { DailyScreen } from './screens/DailyScreen';
+import { DeleteAccountScreen } from './screens/DeleteAccountScreen';
 import { DifficultyScreen } from './screens/DifficultyScreen';
 import { HelpScreen } from './screens/HelpScreen';
 import { HomeScreen } from './screens/HomeScreen';
@@ -26,6 +27,7 @@ export function App() {
           <Route path="/settings" element={<SettingsScreen />} />
           <Route path="/help" element={<HelpScreen />} />
           <Route path="/privacy" element={<PrivacyScreen />} />
+          <Route path="/delete-account" element={<DeleteAccountScreen />} />
           <Route path="/shop" element={<ShopScreen />} />
           <Route path="/play/single/:difficulty" element={<PlayScreen />} />
           <Route path="/play/campaign/:level/:index" element={<PlayScreen />} />

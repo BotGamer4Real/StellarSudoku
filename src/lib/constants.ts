@@ -106,6 +106,7 @@ export const ACHIEVEMENTS = [
 export const UNDO_PENALTY_MS = 5000;
 export const DAILY_RESET_HOUR_GMT = 7;
 export const PRIVACY_POLICY_URL = 'https://stellar-sudoku.vercel.app/privacy.html';
+export const ACCOUNT_DELETION_URL = 'https://stellar-sudoku.vercel.app/delete-account.html';
 
 export const DISPLAY_NAME_RE = /^[A-Za-z0-9][A-Za-z0-9 _-]{2,19}$/;
 

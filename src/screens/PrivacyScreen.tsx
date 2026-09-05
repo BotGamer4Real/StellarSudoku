@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Shell } from '../components/Shell';
-import { PRIVACY_POLICY_URL } from '../lib/constants';
+import { ACCOUNT_DELETION_URL, PRIVACY_POLICY_URL } from '../lib/constants';
 
 export function PrivacyScreen() {
   return (
@@ -29,7 +29,13 @@ export function PrivacyScreen() {
         <h2>Children</h2>
         <p>Content is a general audience. Accounts are not offered to children under 13.</p>
         <h2>Account deletion</h2>
-        <p>Settings → Delete account. Type DELETE. Cloud rows are purged.</p>
+        <p>
+          Settings → Delete account, or{' '}
+          <a href={ACCOUNT_DELETION_URL} target="_blank" rel="noreferrer">
+            {ACCOUNT_DELETION_URL}
+          </a>
+          . Type DELETE. Cloud rows are purged.
+        </p>
       </div>
     </Shell>
   );

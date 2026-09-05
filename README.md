@@ -67,6 +67,7 @@ I cannot access Google Play Console. Create the app yourself, then upload the si
 7. Content rating: Everyone / PEGI 3 equivalent. Accounts are 13+.
 8. In-app account deletion: Settings → Delete account (already in the binary)
 9. Privacy policy URL: https://stellar-sudoku.vercel.app/privacy.html
+10. Account deletion URL: https://stellar-sudoku.vercel.app/delete-account.html
 
 The upload keystore is **not** in Git. Keep `android/keystore/KEEP-THIS-SECRET.txt` and `stellarsudoku-upload.jks` in a password manager / offline backup. Losing them means a Play upload-key reset.
 

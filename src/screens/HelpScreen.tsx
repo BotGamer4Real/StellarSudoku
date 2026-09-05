@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Shell } from '../components/Shell';
-import { PRIVACY_POLICY_URL } from '../lib/constants';
+import { ACCOUNT_DELETION_URL, PRIVACY_POLICY_URL } from '../lib/constants';
 
 export function HelpScreen() {
   return (
@@ -19,7 +19,13 @@ export function HelpScreen() {
         <h2>Guest vs account</h2>
         <p>A guest may finish Single Player on this device. Campaign cloud save, Daily submit, shop, and achievements need Sign in. After Sign up you can keep the new account as-is or attach local Single Player stats once.</p>
         <h2>Account deletion</h2>
-        <p>Settings → Delete account. Type DELETE. Your cloud rows are purged. Signing in with the same email requires Sign up again.</p>
+        <p>
+          Settings → Delete account, or the web page{' '}
+          <a href={ACCOUNT_DELETION_URL} target="_blank" rel="noreferrer">
+            delete-account.html
+          </a>
+          . Type DELETE. Cloud rows are purged. Signing in with the same email requires Sign up again.
+        </p>
         <h2>Privacy</h2>
         <p>
           <Link to="/privacy">Privacy policy</Link>
