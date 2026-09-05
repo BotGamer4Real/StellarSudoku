@@ -21,7 +21,6 @@ export function SettingsScreen() {
   const [music, setMusic] = useState(initial.music);
   const [sfx, setSfx] = useState(initial.sfx);
   const [theme, setTheme] = useState(initial.theme);
-  const [leftHanded, setLeftHanded] = useState(initial.leftHanded);
   const [colourBlind, setColourBlind] = useState(initial.colourBlind);
   const [largeCells, setLargeCells] = useState(initial.largeCells);
   const [notesDefault, setNotesDefault] = useState(initial.notesDefault);
@@ -53,17 +52,14 @@ export function SettingsScreen() {
           <button className={`btn grow${theme === 'light' ? ' primary' : ''}`} onClick={() => { setTheme('light'); void patch({ theme: 'light' }); }}>Light</button>
         </div>
         <div className="row">
-          <button className="btn grow" onClick={() => { setLeftHanded((v) => { void patch({ leftHanded: !v }); return !v; }); }}>
-            Pad: {leftHanded ? 'Left' : 'Right'}
-          </button>
           <button className="btn grow" onClick={() => { setLargeCells((v) => { void patch({ largeCells: !v }); return !v; }); }}>
             Cells: {largeCells ? 'Large' : 'Standard'}
           </button>
-        </div>
-        <div className="row">
           <button className="btn grow" onClick={() => { setColourBlind((v) => { void patch({ colourBlind: !v }); return !v; }); }}>
             Colour-blind: {colourBlind ? 'On' : 'Off'}
           </button>
+        </div>
+        <div className="row">
           <button className="btn grow" onClick={() => { setNotesDefault((v) => { void patch({ notesDefault: !v }); return !v; }); }}>
             Notes default: {notesDefault ? 'On' : 'Off'}
           </button>

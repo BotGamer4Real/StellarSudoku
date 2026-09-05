@@ -14,6 +14,8 @@
   --given: #9ec5ff;
   --cell: #12182c;
   --pad: #1c2548;
+  --hl-same: rgba(56, 189, 248, 0.5);
+  --hl-unit: rgba(56, 189, 248, 0.18);
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
   --scene: url("/art/bg-starfield.jpg");
   --orb: url("/art/orb-nebula.jpg");
@@ -34,6 +36,8 @@ html[data-theme='light'] {
   --given: #163a7a;
   --cell: #f7f9ff;
   --pad: #ffffff;
+  --hl-same: rgba(0, 119, 170, 0.34);
+  --hl-unit: rgba(0, 119, 170, 0.12);
   --glass: color-mix(in srgb, var(--panel) 86%, transparent);
 }
 
@@ -44,13 +48,11 @@ html[data-cb='on'] {
   --bad: #d55e00;
   --given: #0072b2;
   --warn: #f0e442;
+  --hl-same: rgba(86, 180, 233, 0.55);
+  --hl-unit: rgba(86, 180, 233, 0.2);
 }
-html[data-cb='on'] .cell.same { background: #16324a; }
-html[data-cb='on'] .cell.unit { background: #1a2a38; }
 html[data-cb='on'] .cell.good { background: rgba(230, 159, 0, 0.28); }
 html[data-cb='on'] .cell.bad { background: rgba(213, 94, 0, 0.32); }
-html[data-theme='light'][data-cb='on'] .cell.same { background: #d6ecf8; }
-html[data-theme='light'][data-cb='on'] .cell.unit { background: #eaf4fb; }
 
 html[data-large='on'] .app-shell {
   max-width: 560px;
@@ -219,8 +221,12 @@ input[type='email'], input[type='password'], input[type='text'] {
 .cell.given { color: var(--given); }
 .cell.entry { color: var(--accent); }
 .cell.selected { outline: 2px solid var(--accent); z-index: 1; }
-.cell.same { background: #1d3358; }
-.cell.unit { background: #182445; }
+.cell.unit { background: var(--hl-unit); }
+.cell.same {
+  background: var(--hl-same);
+  color: #f4fcff;
+}
+html[data-theme='light'] .cell.same { color: #042436; }
 .cell.good { background: rgba(62, 224, 160, 0.22); }
 .cell.bad { background: rgba(255, 93, 122, 0.28); }
 .cell.box-r { box-shadow: inset -2px 0 0 var(--accent), inset 1px 1px 0 rgba(255, 255, 255, 0.08); }
@@ -246,7 +252,11 @@ input[type='email'], input[type='password'], input[type='text'] {
   font-weight: 700;
 }
 .pad button.gone { opacity: 0.2; pointer-events: none; }
-.pad.left { direction: rtl; }
+.pad button.active {
+  outline: 2px solid var(--accent);
+  background: var(--hl-same);
+  color: #f4fcff;
+}
 html[data-pad='orbs'] .pad button {
   border-radius: 50%;
   background-image: linear-gradient(180deg, rgba(8, 12, 28, 0.18), rgba(8, 12, 28, 0.45)), var(--orb);
@@ -256,6 +266,10 @@ html[data-pad='orbs'] .pad button {
   box-shadow: 0 0 10px rgba(180, 90, 255, 0.35);
   color: #fff;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+html[data-pad='orbs'] .pad button.active {
+  outline: 2px solid #fff;
+  box-shadow: 0 0 16px rgba(94, 224, 255, 0.85);
 }
 
 .ghost {

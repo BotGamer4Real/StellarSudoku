@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Shell } from '../components/Shell';
 import { DIFFICULTY_ART } from '../lib/art';
 import { playSfx } from '../lib/audio';
-import { CAMPAIGN_LEVELS, PUZZLES_PER_LEVEL } from '../lib/constants';
+import { ACHIEVEMENTS, CAMPAIGN_LEVELS, PUZZLES_PER_LEVEL } from '../lib/constants';
 import { isDevTester } from '../lib/devTester';
 import { formatElapsed } from '../lib/format';
 import { requireSupabase } from '../lib/supabase';
@@ -81,7 +81,13 @@ export function CampaignScreen() {
               <img className="thumb" src={DIFFICULTY_ART[lvl.difficulty]} alt="" />
               <span>
                 <strong>{lvl.name}</strong>
-                <div className="muted">{done}/{PUZZLES_PER_LEVEL}{open ? '' : ' · locked'}</div>
+                <div className="muted">
+                  {done}/{PUZZLES_PER_LEVEL}
+                  {open ? '' : ' · locked'}
+                  {done >= PUZZLES_PER_LEVEL
+                    ? ` · ${ACHIEVEMENTS.find((a) => a.id === `campaign_level_${lvl.level}`)?.name ?? 'cleared'}`
+                    : ''}
+                </div>
               </span>
               <span className="row">
                 <button

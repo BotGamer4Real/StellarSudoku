@@ -7,7 +7,7 @@ import { NumberPad } from '../components/NumberPad';
 import { Shell } from '../components/Shell';
 import { playSfx } from '../lib/audio';
 import { loadLocalSettings, mergeSettings } from '../lib/applySettings';
-import { difficultyById, UNDO_PENALTY_MS } from '../lib/constants';
+import { ACHIEVEMENTS, difficultyById, UNDO_PENALTY_MS } from '../lib/constants';
 import { isDevTester } from '../lib/devTester';
 import { formatElapsed } from '../lib/format';
 import { loadGuest, saveGuest } from '../lib/guest';
@@ -35,6 +35,7 @@ type Result = {
   coins: number;
   already: boolean;
   perfect: boolean;
+  achievement?: string | null;
 };
 
 export function PlayScreen() {
@@ -79,6 +80,7 @@ export function PlayScreen() {
   const [ghost, setGhost] = useState<{ d: Digit; x: number; y: number } | null>(null);
   const [tutorial, setTutorial] = useState(false);
   const [dailyDayId, setDailyDayId] = useState<string | null>(null);
+  const [activeDigit, setActiveDigit] = useState<Digit | null>(null);
 
   const runningRef = useRef(false);
   const elapsedRef = useRef(0);
@@ -157,6 +159,7 @@ export function PlayScreen() {
     setPowerReady(0);
     setHash(h);
     setResult(null);
+    setActiveDigit(null);
     setRunning(true);
     setBusy(false);
   }, [diff]);
@@ -179,6 +182,7 @@ export function PlayScreen() {
       setPowerUpsUsed(0);
       setPowerReady(0);
       setSelected(null);
+      setActiveDigit(null);
       const guest = loadGuest();
       if (!guest.tutorialDone && !profile?.tutorial_completed) setTutorial(true);
 
@@ -326,7 +330,7 @@ export function PlayScreen() {
     return { rows, cols, boxes };
   }, [grid]);
 
-  const highlightDigit = selected != null && grid[selected] ? (grid[selected] as Digit) : null;
+  const highlightDigit = activeDigit;
 
   const place = (index: number, digit: Digit) => {
     if (givens[index]) return;
@@ -427,6 +431,7 @@ export function PlayScreen() {
           coins: data.coins,
           already: data.already,
           perfect: data.perfect,
+          achievement: data.achievement ?? null,
         });
       } else {
         const { data: win } = await sb.rpc('current_daily_window');
@@ -484,6 +489,7 @@ export function PlayScreen() {
           coins: data.coins,
           already: data.already,
           perfect: data.perfect,
+          achievement: data.achievement ?? null,
         });
         await refreshProfile();
         return;
@@ -543,6 +549,7 @@ export function PlayScreen() {
   const onDragStart = (d: Digit, e: ReactPointerEvent<HTMLButtonElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     dragRef.current = { d, x: e.clientX, y: e.clientY };
+    setActiveDigit(d);
     setGhost({ d, x: e.clientX, y: e.clientY });
   };
 
@@ -607,6 +614,7 @@ export function PlayScreen() {
         onSelect={(i) => {
           playSfx('tap');
           setSelected(i);
+          if (grid[i]) setActiveDigit(grid[i] as Digit);
         }}
       />
       <div className="row space">
@@ -625,7 +633,7 @@ export function PlayScreen() {
           </button>
         )}
       </div>
-      <NumberPad gone={gone} leftHanded={playSettings.leftHanded} onDragStart={onDragStart} />
+      <NumberPad gone={gone} activeDigit={activeDigit} onDragStart={onDragStart} />
 
       {ghost && (
         <div className="ghost" style={{ left: ghost.x - 22, top: ghost.y - 22 }}>{ghost.d}</div>
@@ -681,6 +689,11 @@ export function PlayScreen() {
           <p>Time {formatElapsed(result.acceptedMs)}</p>
           <p>{result.already ? 'Already earned coins for this board' : `Coins granted: ${result.coins}`}</p>
           {result.perfect && mode !== 'single' && <p className="ok">Perfect solve</p>}
+          {result.achievement && (
+            <p className="ok">
+              Achievement unlocked: {ACHIEVEMENTS.find((a) => a.id === result.achievement)?.name ?? result.achievement}
+            </p>
+          )}
           {powerUpsUsed > 0 && <p className="muted">Power-up used — not Perfect</p>}
           {mode === 'single' && (
             <>

@@ -11,9 +11,11 @@ export function HelpScreen() {
       </div>
       <div className="help stack">
         <h2>Rules</h2>
-        <p>Fill the 9×9 grid so each row, column, and 3×3 box contains the digits 1–9 once. Place by tap or by dragging a digit onto a cell. Invalid moves flash the conflict and are not committed. A digit leaves the pad when all nine of that digit are on the board.</p>
+        <p>Fill the 9×9 grid so each row, column, and 3×3 box contains the digits 1–9 once. Place by tap or by dragging a digit onto a cell. The pad is 1–9 left to right. Tap a filled cell or a pad digit to highlight every matching number on the board; the selected row, column, and box use a lighter wash of the same colour. Invalid moves flash the conflict and are not committed. A digit leaves the pad when all nine of that digit are on the board.</p>
         <h2>Coins</h2>
         <p>Cosmic Coins are earned by play, never bought with real money. Single Player pays the difficulty table once per unique board. Replays pay 0. Campaign and Daily can add a Perfect bonus. Daily also adds a streak bonus, +10% per consecutive day, capped at +50%. Spend coins in the Cosmetics shop for backgrounds, pad orbs, avatars, banners, and completion flourishes. Looks only — they never change the puzzle.</p>
+        <h2>Campaign</h2>
+        <p>120 fixed puzzles, 20 per level. Finish all 20 in a level to unlock the next and earn that level’s achievement (Outpost, Station, Frontier, Observatory, Core, Abyss). Replays stay open.</p>
         <h2>Daily Challenge</h2>
         <p>Everyone gets the same board. The window resets at 07:00 GMT. Timer starts after Launch Puzzle. Power-ups are off. Each undo adds 5 seconds. Only the first valid finish of the day is accepted.</p>
         <h2>Guest vs account</h2>
